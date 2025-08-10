@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Crop Tool</title>
+
+<!-- Cropper.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    input[type="file"] {
+        display: block;
+        margin: 15px auto;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        background: #fff;
+        color: #0072ff;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .image-container {
+        max-width: 100%;
+        max-height: 300px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+
+    img {
+        width: 100%;
+        display: block;
+    }
+
+    button {
+        background: #fff;
+        color: #0072ff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        margin: 5px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: #00c6ff;
+        color: #fff;
+    }
+
+    .preview-container {
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .preview-container img {
+        max-width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+</style>
+</head>
+<body>
+
+<h1>📷 Image Crop Tool</h1>
+
+<div class="container">
+    <input type="file" id="uploadImage" accept="image/*">
+    <div class="image-container">
+        <img id="image" style="display:none;">
+    </div>
+    <div style="text-align:center;">
+        <button id="cropBtn" style="display:none;">Crop</button>
+        <button id="downloadBtn" style="display:none;">Download</button>
+    </div>
+    <div class="preview-container">
+        <img id="croppedImage" alt="Cropped Preview" style="display:none;">
+    </div>
+</div>
+
+<!-- Cropper.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+    const uploadImage = document.getElementById('uploadImage');
+    const image = document.getElementById('image');
+    const cropBtn = document.getElementById('cropBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const croppedImage = document.getElementById('croppedImage');
+    let cropper;
+
+    uploadImage.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                image.src = reader.result;
+                image.style.display = 'block';
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(image, {
+                    aspectRatio: NaN,
+                    viewMode: 1,
+                    responsive: true
+                });
+                cropBtn.style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    cropBtn.addEventListener('click', () => {
+        const canvas = cropper.getCroppedCanvas();
+        croppedImage.src = canvas.toDataURL('image/png');
+        croppedImage.style.display = 'block';
+        downloadBtn.style.display = 'inline-block';
+    });
+
+    downloadBtn.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = croppedImage.src;
+        link.download = 'cropped-image.png';
+        link.click();
+    });
+</script>
+
+</body>
+</html>
