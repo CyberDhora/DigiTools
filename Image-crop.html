@@ -1,155 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Crop Tool</title>
-
-<!-- Cropper.js CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gradient Image Crop Tool</title>
+  <style>
     body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background: linear-gradient(135deg, #00c6ff, #0072ff);
-        color: #fff;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-        padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #8360c3 0%, #2ebf91 100%);
+      font-family: 'Segoe UI', sans-serif;
     }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
     .container {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 15px;
-        border-radius: 15px;
-        max-width: 500px;
-        width: 100%;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      margin: 30px auto;
+      background: rgba(255,255,255,0.95);
+      border-radius: 18px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.12);
+      padding: 18px;
     }
-
+    h2, h3 {
+      color: #2ebf91;
+      margin-top: 0;
+    }
     input[type="file"] {
-        display: block;
-        margin: 15px auto;
-        padding: 10px;
-        border: none;
-        border-radius: 10px;
-        background: #fff;
-        color: #0072ff;
-        font-weight: bold;
-        cursor: pointer;
-        width: 100%;
+      margin-bottom: 18px;
     }
-
-    .image-container {
-        max-width: 100%;
-        max-height: 300px;
-        overflow: hidden;
-        margin-bottom: 15px;
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
     }
-
-    img {
-        width: 100%;
-        display: block;
+    #imageCanvas {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
     }
-
-    button {
-        background: #fff;
-        color: #0072ff;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        margin: 5px;
-        font-weight: bold;
-        transition: 0.3s;
+    #cropBox {
+      position: absolute;
+      border: 2px dashed #8360c3;
+      background: rgba(131,96,195,0.13);
+      display: none;
+      cursor: move;
     }
-
-    button:hover {
-        background: #00c6ff;
-        color: #fff;
+    button, a#downloadBtn {
+      display: inline-block;
+      margin: 16px 0 0 0;
+      padding: 10px 22px;
+      font-size: 1em;
+      font-weight: bold;
+      border: 0;
+      border-radius: 24px;
+      background: linear-gradient(90deg, #8360c3 0%, #2ebf91 100%);
+      color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+      text-decoration: none;
+      text-align: center;
+      transition: box-shadow 0.2s;
     }
-
-    .preview-container {
-        margin-top: 15px;
-        text-align: center;
+    button:hover, a#downloadBtn:hover {
+      box-shadow: 0 6px 18px rgba(46,191,145,0.18);
     }
-
-    .preview-container img {
-        max-width: 100%;
-        border-radius: 10px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    .preview {
+      margin-top: 18px;
+      text-align: center;
     }
-</style>
+    #previewCanvas {
+      margin-top: 10px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 240px;
+      background: #f3f3f3;
+    }
+    @media (max-width: 500px) {
+      .container {
+        max-width: 96vw;
+        padding: 2vw;
+      }
+      .canvas-wrapper {
+        max-width: 96vw;
+      }
+      #previewCanvas {
+        max-width: 86vw;
+      }
+    }
+  </style>
 </head>
 <body>
-
-<h1>📷 Image Crop Tool</h1>
-
-<div class="container">
-    <input type="file" id="uploadImage" accept="image/*">
-    <div class="image-container">
-        <img id="image" style="display:none;">
+  <div class="container">
+    <h2>Image Crop Tool</h2>
+    <input type="file" id="imageInput" accept="image/*" />
+    <div class="canvas-wrapper">
+      <canvas id="imageCanvas"></canvas>
+      <div id="cropBox"></div>
     </div>
-    <div style="text-align:center;">
-        <button id="cropBtn" style="display:none;">Crop</button>
-        <button id="downloadBtn" style="display:none;">Download</button>
+    <button id="cropBtn">Crop & Preview</button>
+    <div class="preview">
+      <h3>Preview & Download</h3>
+      <canvas id="previewCanvas"></canvas>
+      <a id="downloadBtn" href="#" download="cropped-image.png">Download Cropped Image</a>
     </div>
-    <div class="preview-container">
-        <img id="croppedImage" alt="Cropped Preview" style="display:none;">
-    </div>
-</div>
-
-<!-- Cropper.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-<script>
-    const uploadImage = document.getElementById('uploadImage');
-    const image = document.getElementById('image');
+  </div>
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const imageCanvas = document.getElementById('imageCanvas');
+    const previewCanvas = document.getElementById('previewCanvas');
     const cropBtn = document.getElementById('cropBtn');
+    const cropBox = document.getElementById('cropBox');
     const downloadBtn = document.getElementById('downloadBtn');
-    const croppedImage = document.getElementById('croppedImage');
-    let cropper;
 
-    uploadImage.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                image.src = reader.result;
-                image.style.display = 'block';
-                if (cropper) cropper.destroy();
-                cropper = new Cropper(image, {
-                    aspectRatio: NaN,
-                    viewMode: 1,
-                    responsive: true
-                });
-                cropBtn.style.display = 'inline-block';
-            };
-            reader.readAsDataURL(file);
-        }
+    const ctx = imageCanvas.getContext('2d');
+    const previewCtx = previewCanvas.getContext('2d');
+    let image = new window.Image();
+    let startX, startY, endX, endY, isDragging = false, isImageLoaded = false;
+
+    function drawImageToCanvas(file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        image.onload = () => {
+          // Fit canvas to image (limit width for mobile)
+          const maxW = 320;
+          let scale = Math.min(1, maxW / image.width);
+          imageCanvas.width = image.width * scale;
+          imageCanvas.height = image.height * scale;
+          ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+          ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
+          isImageLoaded = true;
+          cropBox.style.display = 'none';
+        };
+        image.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Handle file change
+    imageInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        drawImageToCanvas(e.target.files[0]);
+      }
     });
 
-    cropBtn.addEventListener('click', () => {
-        const canvas = cropper.getCroppedCanvas();
-        croppedImage.src = canvas.toDataURL('image/png');
-        croppedImage.style.display = 'block';
-        downloadBtn.style.display = 'inline-block';
+    // Crop box handling
+    imageCanvas.addEventListener('mousedown', function(e) {
+      if (!isImageLoaded) return;
+      isDragging = true;
+      const rect = imageCanvas.getBoundingClientRect();
+      startX = e.clientX - rect.left;
+      startY = e.clientY - rect.top;
+      cropBox.style.display = 'block';
+      cropBox.style.left = `${startX}px`;
+      cropBox.style.top = `${startY}px`;
+      cropBox.style.width = `0px`;
+      cropBox.style.height = `0px`;
     });
 
-    downloadBtn.addEventListener('click', () => {
-        const link = document.createElement('a');
-        link.href = croppedImage.src;
-        link.download = 'cropped-image.png';
-        link.click();
+    imageCanvas.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      const rect = imageCanvas.getBoundingClientRect();
+      endX = e.clientX - rect.left;
+      endY = e.clientY - rect.top;
+      let left = Math.min(startX, endX);
+      let top = Math.min(startY, endY);
+      let width = Math.abs(endX - startX);
+      let height = Math.abs(endY - startY);
+      cropBox.style.left = `${left}px`;
+      cropBox.style.top = `${top}px`;
+      cropBox.style.width = `${width}px`;
+      cropBox.style.height = `${height}px`;
     });
-</script>
 
+    window.addEventListener('mouseup', function(e) {
+      if (isDragging) {
+        isDragging = false;
+      }
+    });
+
+    // Cropping logic
+    cropBtn.addEventListener('click', function() {
+      if (cropBox.style.display === 'none' || cropBox.style.width === '0px') return;
+      let sx = parseInt(cropBox.style.left);
+      let sy = parseInt(cropBox.style.top);
+      let sw = parseInt(cropBox.style.width);
+      let sh = parseInt(cropBox.style.height);
+
+      // Support for scaling
+      let scale = image.width / imageCanvas.width;
+      previewCanvas.width = sw;
+      previewCanvas.height = sh;
+      previewCtx.clearRect(0, 0, sw, sh);
+
+      previewCtx.drawImage(
+        image,
+        sx*scale, sy*scale, sw*scale, sh*scale, // source
+        0, 0, sw, sh                           // destination
+      );
+
+      // Set download
+      downloadBtn.href = previewCanvas.toDataURL('image/png');
+    });
+
+    // Reset cropBox if image reloaded
+    imageInput.addEventListener('click', () => {
+      cropBox.style.display = 'none';
+    });
+  </script>
 </body>
 </html>
