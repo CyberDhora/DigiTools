@@ -108,9 +108,10 @@
             align-items: center;
         }
         
-        .upload-area:hover {
+        .upload-area.drag-over {
             background: #f0ebff;
             border-color: #4a00b0;
+            transform: scale(1.02);
         }
         
         .upload-area i {
@@ -534,6 +535,7 @@
                 e.stopPropagation();
             }
             
+            // Highlight drop area when item is dragged over it
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropArea.addEventListener(eventName, highlight, false);
             });
@@ -543,20 +545,20 @@
             });
             
             function highlight() {
-                dropArea.style.borderColor = '#4a00b0';
-                dropArea.style.backgroundColor = '#f0ebff';
+                dropArea.classList.add('drag-over');
             }
             
             function unhighlight() {
-                dropArea.style.borderColor = '#6a11cb';
-                dropArea.style.backgroundColor = '#f8f5ff';
+                dropArea.classList.remove('drag-over');
             }
             
+            // Handle dropped files
             dropArea.addEventListener('drop', handleDrop, false);
             
             function handleDrop(e) {
                 const dt = e.dataTransfer;
                 const files = dt.files;
+                
                 if (files.length) {
                     handleFiles(files[0]);
                 }
@@ -644,7 +646,7 @@
                 const newHeight = parseInt(heightInput.value);
                 
                 // Validate dimensions
-                if (isNaN(newWidth) {
+                if (isNaN(newWidth)) {
                     alert('Please enter a valid width');
                     return;
                 }
